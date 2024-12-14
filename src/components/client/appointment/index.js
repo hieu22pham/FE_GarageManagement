@@ -15,7 +15,6 @@ export default function AppointmentClient() {
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedDateFormat, setSelectedDateFormat] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
-  
 
   const timeSlots = ["07:00", "07:30", "08:00", "08:30", "09:00", "09:30", "10:00", "10:30"];
 
@@ -86,19 +85,25 @@ export default function AppointmentClient() {
   };
 
   const handleTimeSelect = (day, time) => {
+    console.log("Time: ", time);
     setSelectedDate(day.fullDate); // Gán fullDate (YYYY-MM-DD)
     setSelectedTime(time); // Gán giờ đã chọn
 
-    const value = new Date(day.fullDate + "T" + time + ":00");
+    // Tạo đối tượng Date mà không bị ảnh hưởng bởi múi giờ
+    const [year, month, date] = day.fullDate.split('-');
+    const [hour, minute] = time.split(':');
 
-    // Định dạng thành `YYYY-MM-DD HH:mm:ss`
-    const formattedDateTime = value.toISOString().replace('T', ' ').slice(0, 19);
-  
+    // Tạo một đối tượng Date
+    const value = new Date(year, month - 1, date, hour, minute);
+
+    // Định dạng thủ công thành `YYYY-MM-DD HH:mm:ss`
+    const formattedDateTime = new Date(`${year}-${month}-${date}T${hour}:${minute}:00`);
+
     // Lưu giá trị gộp
     setSelectedDateFormat(formattedDateTime);
 
-    console.log(selectedDateFormat);
-  };
+    console.log("Selected Date Format: ", formattedDateTime);
+};
 
   const handleConfirmBooking = async (values) => {
     if (!selectedGarages) {
@@ -142,11 +147,12 @@ export default function AppointmentClient() {
           garage_id: selectedGarages.id,
           service_id: selectedServicesData,
           customer_id: customerId,
-          appointment_date: selectedDate,
-          appointment_time: selectedTime,
+          appointment_date: selectedDateFormat,
         };
 
-        const appointmentResponse = await fetch("http://localhost:8080/admin/appointment/create", {
+        console.log("bookingData: ", bookingData)
+
+        const appointmentResponse = await fetch("http://localhost:8080/admin/appointments/create", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -155,6 +161,19 @@ export default function AppointmentClient() {
         });
 
         const appointmentResult = await appointmentResponse.json();
+
+        const notiData = {
+          customer_id: customerId,
+          message: "",
+        };
+
+        const notiResponse = await fetch("http://localhost:8080/admin/notification/postQuickOrder", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(notiData),
+        });
 
         if (appointmentResult.code === 201) {
           message.success("Đặt lịch thành công!");
@@ -360,6 +379,7 @@ export default function AppointmentClient() {
             <Input />
           </Form.Item>
           <Button
+            className='mb-4'
             type="primary"
             style={{ marginTop: "20px" }}
             htmlType="submit"

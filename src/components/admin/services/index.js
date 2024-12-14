@@ -1,100 +1,125 @@
-import React, { useEffect, useState } from 'react';
-import { Table, Button, Space, message, Popconfirm } from 'antd';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { Table, Button, Space, message, Popconfirm } from "antd";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+
 const Services = () => {
   const [services, setServices] = useState([]);
+  const navigate = useNavigate();
+
   // Lấy dữ liệu từ API
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL_ADMIN}/services/get-all`);
+        const response = await axios.get(
+          `${process.env.REACT_APP_API_URL_ADMIN}/services/get-all`
+        );
         if (response.data.code === 200) {
           setServices(response.data.data);
         } else {
-          message.error('Failed to fetch services');
+          message.error("Không thể tải danh sách dịch vụ");
         }
       } catch (error) {
-        message.error('Error fetching services');
+        message.error("Lỗi khi tải danh sách dịch vụ");
       }
     };
     fetchServices();
   }, []);
 
-  const navigate = useNavigate();
   const handleView = (id) => {
-      navigate(`/admin/services/${id}`);
+    navigate(`/admin/services/${id}`);
   };
 
   const handleEdit = (id) => {
-      navigate(`/admin/services/edit/${id}`);
+    navigate(`/admin/services/edit/${id}`);
+  };
+
+  const handleCreate = () => {
+    navigate("/admin/services/create");
   };
 
   const handleDelete = async (id) => {
-      try {
-          // Giả lập gọi API xóa
-          const API = `${process.env.REACT_APP_API_URL_ADMIN}/services/delete/${id}`
-          console.log(API)
-          const response = await axios.delete(API);
-          if ((response.data.code === 200))
-              message.success('Deleted successfully');
-      } catch (error) {
-          message.error('Failed to delete');
+    try {
+      const API = `${process.env.REACT_APP_API_URL_ADMIN}/services/delete/${id}`;
+      const response = await axios.delete(API);
+      if (response.data.code === 200) {
+        message.success("Xóa dịch vụ thành công");
+        setServices((prev) => prev.filter((service) => service.id !== id)); // Cập nhật danh sách sau khi xóa
+      } else {
+        message.error("Không thể xóa dịch vụ");
       }
+    } catch (error) {
+      message.error("Lỗi khi xóa dịch vụ");
+    }
   };
-
 
   // Định nghĩa các cột của bảng
   const columns = [
     {
-      title: 'ID',
-      dataIndex: 'id',
-      key: 'id',
+      title: "STT",
+      key: "index",
+      render: (_, __, index) => index + 1,
     },
     {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
+      title: "Tên dịch vụ",
+      dataIndex: "name",
+      key: "name",
     },
     {
-      title: 'Description',
-      dataIndex: 'description',
-      key: 'description',
+      title: "Mô tả",
+      dataIndex: "description",
+      key: "description",
     },
     {
-      title: 'Price',
-      dataIndex: 'price',
-      key: 'price',
-      render: (price) => `$${price}`,
+      title: "Giá",
+      dataIndex: "price",
+      key: "price",
+      render: (price) => `${price.toLocaleString()} VNĐ`,
     },
     {
-        title: 'Action',
-        key: 'action',
-        render: (_, record) => (
-            <Space size="middle">
-                <Button type="link" onClick={() => handleView(record.id)}>
-                    View
-                </Button>
-                <Button type="link" onClick={() => handleEdit(record.id)}>
-                    Edit
-                </Button>
-                <Popconfirm
-                    title="Chắc chán xóa thông tin khách hàng này?"
-                    onConfirm={() => handleDelete(record.id)}
-                    okText="Yes"
-                    cancelText="No"
-                >
-                    <Button type="link" danger>
-                        Delete
-                    </Button>
-                </Popconfirm>
-            </Space>
-        ),
-    }
+      title: "Hành động",
+      key: "action",
+      render: (_, record) => (
+        <Space size="middle">
+          <Button type="link" onClick={() => handleView(record.id)}>
+            Xem
+          </Button>
+          <Button type="link" onClick={() => handleEdit(record.id)}>
+            Sửa
+          </Button>
+          <Popconfirm
+            title="Bạn có chắc chắn muốn xóa dịch vụ này?"
+            onConfirm={() => handleDelete(record.id)}
+            okText="Có"
+            cancelText="Không"
+          >
+            <Button type="link" danger>
+              Xóa
+            </Button>
+          </Popconfirm>
+        </Space>
+      ),
+    },
   ];
 
-
-  return <Table columns={columns} dataSource={services} rowKey="id" />;
+  return (
+    <>
+      <Button
+        type="primary"
+        style={{ marginBottom: 16 }}
+        onClick={handleCreate}
+      >
+        Thêm dịch vụ mới
+      </Button>
+      <Table
+        columns={columns}
+        dataSource={services}
+        rowKey="id"
+        bordered
+        pagination={{ pageSize: 5 }}
+      />
+    </>
+  );
 };
 
 export default Services;

@@ -26,6 +26,11 @@ import ServiceEdit from './components/admin/services/edit';
 import Technician from './components/admin/technician';
 import TechnicianDetail from './components/admin/technician/details';
 import TechnicianEdit from './components/admin/technician/edit';
+import CreateTechnician from './components/admin/technician/create';
+import CreateService from './components/admin/services/create';
+import Appointment from './components/admin/appointment';
+import AppointmentDetail from './components/admin/appointment/detail';
+import AppointmentEdit from './components/admin/appointment/edit';
 
 
 
@@ -39,6 +44,11 @@ function App() {
           <Route path="admin" element={<Admin />} >
             <Route path="dashboard" element={<DashboardAdmin />} />
 
+            <Route path="appointments" element={<Appointment />} />
+            <Route path="appointments/:id" element={<AppointmentDetail />} />
+            <Route path="appointments/edit/:id" element={<AppointmentEdit />} />
+
+
             <Route path="customers" element={<Customer />} />
             <Route path="customers/:id" element={<CustomerDetail />} />
             <Route path="customers/edit/:id" element={<CustomerEdit />} />
@@ -46,11 +56,12 @@ function App() {
             <Route path="services" element={<Services />} />
             <Route path="services/:id" element={<ServiceDetail />} />
             <Route path="services/edit/:id" element={<ServiceEdit />} />
+            <Route path="services/create" element={<CreateService />} />
 
             <Route path="technicians" element={<Technician />} />
             <Route path="technicians/:id" element={<TechnicianDetail />} />
             <Route path="technicians/edit/:id" element={<TechnicianEdit />} />
-
+            <Route path="technicians/create" element={<CreateTechnician />} />
           </Route >
         </Route >
 

@@ -1,127 +1,118 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Table, Button, Space, message, Popconfirm } from 'antd';
-import axios from 'axios';
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Table, Button, Space, message, Popconfirm } from "antd";
+import axios from "axios";
 
 const Customer = () => {
-    const [data, setData] = useState([]);
-    const [loading, setLoading] = useState(false);
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-    const navigate = useNavigate();
-    const handleView = (id) => {
-        navigate(`/admin/customers/${id}`);
-    };
+  const navigate = useNavigate();
 
-    const handleEdit = (id) => {
-        navigate(`/admin/customers/edit/${id}`);
-    };
+  const handleView = (id) => {
+    navigate(`/admin/customers/${id}`);
+  };
 
-    const handleDelete = async (id) => {
-        try {
-            // Giả lập gọi API xóa
-            const API = `${process.env.REACT_APP_API_URL_ADMIN}/customers/delete/${id}`
-            console.log(API)
-            const response = await axios.delete(API);
-            if ((response.data.code === 200))
-                message.success('Deleted successfully');
-        } catch (error) {
-            message.error('Failed to delete');
+  const handleEdit = (id) => {
+    navigate(`/admin/customers/edit/${id}`);
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      const API = `${process.env.REACT_APP_API_URL_ADMIN}/customers/delete/${id}`;
+      const response = await axios.delete(API);
+      if (response.data.code === 200) {
+        message.success("Xóa khách hàng thành công");
+        setData((prevData) => prevData.filter((item) => item.id !== id)); // Xóa khách hàng khỏi danh sách
+      } else {
+        message.error("Không thể xóa khách hàng");
+      }
+    } catch (error) {
+      message.error("Lỗi khi xóa khách hàng");
+    }
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get("http://localhost:8080/admin/customers/get-all");
+        if (response.data.code === 200) {
+          setData(response.data.data);
+        } else {
+          message.error("Không thể tải dữ liệu khách hàng");
         }
+      } catch (error) {
+        message.error("Lỗi khi tải dữ liệu khách hàng");
+      }
+      setLoading(false);
     };
-    useEffect(() => {
-        const fetchData = async () => {
-            setLoading(true);
-            try {
-                const response = await axios.get('http://localhost:8080/admin/customers/get-all');
-                if (response.data.code === 200) {
-                    setData(response.data.data);
-                    message.success(response.data.message);
-                } else {
-                    message.error('Failed to fetch data');
-                }
-            } catch (error) {
-                message.error('Error fetching data');
-            }
-            setLoading(false);
-        };
 
-        fetchData();
-    }, []);
+    fetchData();
+  }, []);
 
-    const columns = [
-        {
-            title: 'ID',
-            dataIndex: 'id',
-            key: 'id',
-        },
-        {
-            title: 'Full Name',
-            dataIndex: 'full_name',
-            key: 'full_name',
-        },
-        {
-            title: 'Email',
-            dataIndex: 'email',
-            key: 'email',
-        },
-        {
-            title: 'Phone Number',
-            dataIndex: 'phone_number',
-            key: 'phone_number',
-        },
-        {
-            title: 'Address',
-            dataIndex: 'address',
-            key: 'address',
-        },
-        {
-            title: 'Created At',
-            dataIndex: 'created_at',
-            key: 'created_at',
-            render: (text) => new Date(text).toLocaleString(),
-        },
-        {
-            title: 'Updated At',
-            dataIndex: 'updated_at',
-            key: 'updated_at',
-            render: (text) => new Date(text).toLocaleString(),
-        },
-        ,
-        {
-            title: 'Action',
-            key: 'action',
-            render: (_, record) => (
-                <Space size="middle">
-                    <Button type="link" onClick={() => handleView(record.id)}>
-                        View
-                    </Button>
-                    <Button type="link" onClick={() => handleEdit(record.id)}>
-                        Edit
-                    </Button>
-                    <Popconfirm
-                        title="Chắc chán xóa thông tin khách hàng này?"
-                        onConfirm={() => handleDelete(record.id)}
-                        okText="Yes"
-                        cancelText="No"
-                    >
-                        <Button type="link" danger>
-                            Delete
-                        </Button>
-                    </Popconfirm>
-                </Space>
-            ),
-        }
-    ];
+  const columns = [
+    {
+      title: "STT",
+      key: "index",
+      render: (_, __, index) => index + 1,
+    },
+    {
+      title: "Họ và tên",
+      dataIndex: "full_name",
+      key: "full_name",
+    },
+    {
+      title: "Email",
+      dataIndex: "email",
+      key: "email",
+    },
+    {
+      title: "Số điện thoại",
+      dataIndex: "phone_number",
+      key: "phone_number",
+    },
+    {
+      title: "Địa chỉ",
+      dataIndex: "address",
+      key: "address",
+    },
+    {
+      title: "Hành động",
+      key: "action",
+      render: (_, record) => (
+        <Space size="middle">
+          <Button type="link" onClick={() => handleView(record.id)}>
+            Xem
+          </Button>
+          <Button type="link" onClick={() => handleEdit(record.id)}>
+            Sửa
+          </Button>
+          <Popconfirm
+            title="Bạn có chắc chắn muốn xóa khách hàng này?"
+            onConfirm={() => handleDelete(record.id)}
+            okText="Có"
+            cancelText="Không"
+          >
+            <Button type="link" danger>
+              Xóa
+            </Button>
+          </Popconfirm>
+        </Space>
+      ),
+    },
+  ];
 
-    return (
-        <Table
-            columns={columns}
-            dataSource={data}
-            rowKey="id"
-            loading={loading}
-            pagination={{ pageSize: 5 }}
-        />
-    );
+  return (
+    <Table
+      columns={columns}
+      dataSource={data}
+      rowKey="id"
+      loading={loading}
+      pagination={{ pageSize: 5 }}
+      bordered
+    />
+  );
 };
 
 export default Customer;

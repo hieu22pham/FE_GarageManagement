@@ -56,9 +56,11 @@ const CustomerEdit = () => {
         layout="vertical"
         onFinish={onFinish}
         initialValues={{ full_name: '', email: '', phone_number: '', address: '' }}
-      >
+      > 
+      <h2>Sửa thông tin</h2>
+
         <Form.Item
-          label="Full Name"
+          label="Họ và tên"
           name="full_name"
           rules={[{ required: true, message: 'Please input the full name!' }]}
         >
@@ -74,7 +76,7 @@ const CustomerEdit = () => {
         </Form.Item>
 
         <Form.Item
-          label="Phone Number"
+          label="Số điện thoại"
           name="phone_number"
           rules={[{ required: true, message: 'Please input the phone number!' }]}
         >
@@ -82,7 +84,7 @@ const CustomerEdit = () => {
         </Form.Item>
 
         <Form.Item
-          label="Address"
+          label="Địa chỉ"
           name="address"
           rules={[{ required: true, message: 'Please input the address!' }]}
         >

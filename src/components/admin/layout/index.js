@@ -19,7 +19,7 @@ export default function SidebarClient() {
       try {
         const response = await axios.get(`http://localhost:8080/admin/notification/get-all`);
         const data = response.data.data;
-        console.log(data)
+        console.log("Notis: ", data)
         // Ensure 'notifications' is an array before setting state
         const notifications = Array.isArray(data.notifications) ? data.notifications : [];
         setNotifications(data);
@@ -46,11 +46,13 @@ export default function SidebarClient() {
   const menuNotifications = (
     <Menu>
       {notifications.length > 0 ? (
-        notifications.map((notification, index) => (
-          <Menu.Item key={index} onClick={() => handleNotificationClick(notification)}>
-            <span dangerouslySetInnerHTML={{ __html: notification.message }} />
-          </Menu.Item>
-        ))
+        notifications
+          .filter(notification => notification.message !== '') // Lọc các thông báo có message không rỗng
+          .map((notification, index) => (
+            <Menu.Item key={index} onClick={() => handleNotificationClick(notification)}>
+              <span dangerouslySetInnerHTML={{ __html: notification.message }} />
+            </Menu.Item>
+          ))
       ) : (
         <Menu.Item>
           <span>Không có thông báo mới</span>
@@ -94,7 +96,7 @@ export default function SidebarClient() {
           <Menu.Item key="4" onClick={() => navigate("/admin/customers")}>
             Khách hàng
           </Menu.Item>
-          <Menu.Item key="5" onClick={() => navigate("#")}>
+          <Menu.Item key="5" onClick={() => navigate("/admin/appointments")}>
             Lịch hẹn
           </Menu.Item>
         </Menu>

@@ -39,12 +39,11 @@ const TechnicianEdit = () => {
     setLoading(true);
     try {
       const response = await axios.put(
-        `http://localhost:8080/admin/technicians/${id}`,
+        `http://localhost:8080/admin/technicians/edit/${id}`,
         values
       );
       if (response.data.code === 200) {
         message.success("Technician updated successfully!");
-        navigate(`/technician/${id}`); // Sau khi thành công, chuyển đến trang chi tiết
       } else {
         message.error("Failed to update technician");
       }
@@ -65,7 +64,7 @@ const TechnicianEdit = () => {
 
   return (
     <div style={{ maxWidth: 600, margin: "0 auto" }}>
-      <h2>Edit Technician</h2>
+      <h2>Sửa thông tin</h2>
       <Form
         form={form}
         onFinish={handleSubmit}
@@ -73,7 +72,7 @@ const TechnicianEdit = () => {
         layout="vertical"
       >
         <Form.Item
-          label="Full Name"
+          label="Họ và tên"
           name="full_name"
           rules={[{ required: true, message: "Full name is required" }]}
         >
@@ -87,14 +86,14 @@ const TechnicianEdit = () => {
           <Input />
         </Form.Item>
         <Form.Item
-          label="Phone Number"
+          label="Số điện thoại"
           name="phone_number"
           rules={[{ required: true, message: "Phone number is required" }]}
         >
           <Input />
         </Form.Item>
         <Form.Item
-          label="Specialty"
+          label="Chuyên môn"
           name="specialty"
           rules={[{ required: true, message: "Specialty is required" }]}
         >

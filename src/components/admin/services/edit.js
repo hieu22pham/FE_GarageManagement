@@ -51,7 +51,7 @@ const ServiceEdit = () => {
 
   return (
     <div style={{ padding: '20px' }}>
-      <h2>Edit Service</h2>
+      <h2>Sửa thông tin</h2>
       <Form
         initialValues={{
           name: service.name,
@@ -62,7 +62,7 @@ const ServiceEdit = () => {
         layout="vertical"
       >
         <Form.Item
-          label="Service Name"
+          label="Tên dịch vụ"
           name="name"
           rules={[{ required: true, message: 'Please input the service name!' }]}
         >
@@ -70,7 +70,7 @@ const ServiceEdit = () => {
         </Form.Item>
 
         <Form.Item
-          label="Description"
+          label="Mô tả"
           name="description"
           rules={[{ required: true, message: 'Please input the service description!' }]}
         >
@@ -78,7 +78,7 @@ const ServiceEdit = () => {
         </Form.Item>
 
         <Form.Item
-          label="Price"
+          label="Giá"
           name="price"
           rules={[{ required: true, message: 'Please input the price!' }]}
         >
