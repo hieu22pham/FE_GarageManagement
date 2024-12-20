@@ -6,11 +6,11 @@ import axios from "axios";
 const TechnicianEdit = () => {
   const { id } = useParams(); // Lấy id từ URL
   const navigate = useNavigate(); // Dùng để chuyển hướng sau khi lưu
-  const [form] = Form.useForm();
   const [loading, setLoading] = useState(true);
   const [technician, setTechnician] = useState(null);
+  const [form] = Form.useForm();
+  const [thumbnailFile, setThumbnailFile] = useState(null);
 
-  // Lấy thông tin kỹ thuật viên từ API
   useEffect(() => {
     fetchTechnicianDetail(id);
   }, [id]);
@@ -34,16 +34,30 @@ const TechnicianEdit = () => {
     }
   };
 
-  // Xử lý khi lưu thông tin đã chỉnh sửa
   const handleSubmit = async (values) => {
     setLoading(true);
+    const formData = new FormData();
+    formData.append("full_name", values.full_name);
+    formData.append("email", values.email);
+    formData.append("phone_number", values.phone_number);
+    formData.append("specialty", values.specialty);
+
+    // Nếu có tệp mới được chọn, thêm tệp đó vào FormData
+    if (thumbnailFile) {
+      formData.append("thumbnail", thumbnailFile);
+    }
+
+    console.log("formData", formData)
+
     try {
       const response = await axios.put(
         `http://localhost:8080/admin/technicians/edit/${id}`,
-        values
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } }
       );
       if (response.data.code === 200) {
         message.success("Technician updated successfully!");
+        navigate("/admin/technicians"); // Chuyển hướng sau khi lưu thành công
       } else {
         message.error("Failed to update technician");
       }
@@ -52,6 +66,10 @@ const TechnicianEdit = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleFileChange = (e) => {
+    setThumbnailFile(e.target.files[0]);
   };
 
   if (loading) {
@@ -81,7 +99,10 @@ const TechnicianEdit = () => {
         <Form.Item
           label="Email"
           name="email"
-          rules={[{ required: true, message: "Email is required" }, { type: "email", message: "Invalid email" }]}
+          rules={[
+            { required: true, message: "Email is required" },
+            { type: "email", message: "Invalid email" },
+          ]}
         >
           <Input />
         </Form.Item>
@@ -99,10 +120,22 @@ const TechnicianEdit = () => {
         >
           <Input />
         </Form.Item>
-
+        <Form.Item label="Ảnh">
+          <input type="file" onChange={handleFileChange} />
+          {technician.thumbnail && !thumbnailFile && (
+            <div>
+              <p>Current image:</p>
+              <img
+                src={technician.thumbnail}
+                alt="Current Thumbnail"
+                style={{ width: "100px", height: "100px", objectFit: "cover" }}
+              />
+            </div>
+          )}
+        </Form.Item>
         <Form.Item>
           <Button type="primary" htmlType="submit" loading={loading}>
-            Save Changes
+            Lưu
           </Button>
         </Form.Item>
       </Form>

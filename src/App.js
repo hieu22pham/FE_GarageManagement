@@ -31,6 +31,10 @@ import CreateService from './components/admin/services/create';
 import Appointment from './components/admin/appointment';
 import AppointmentDetail from './components/admin/appointment/detail';
 import AppointmentEdit from './components/admin/appointment/edit';
+import AdminIndex from './components/admin/accounts';
+import AdminCreate from './components/admin/accounts/create';
+import AdminDetail from './components/admin/accounts/details';
+import AdminEdit from './components/admin/accounts/edit';
 
 
 
@@ -42,7 +46,10 @@ function App() {
         <Route path="admin/login" element={<LoginAdmin />} />
         <Route element={<PrivateRoute />}>
           <Route path="admin" element={<Admin />} >
-            <Route path="dashboard" element={<DashboardAdmin />} />
+            <Route path="manage" element={<AdminIndex />} />
+            <Route path="manage/:id" element={<AdminDetail />} />
+            <Route path="manage/edit/:id" element={<AdminEdit />} />
+            <Route path="manage/create" element={<AdminCreate />} />
 
             <Route path="appointments" element={<Appointment />} />
             <Route path="appointments/:id" element={<AppointmentDetail />} />

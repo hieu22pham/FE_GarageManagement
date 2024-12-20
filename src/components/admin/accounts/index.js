@@ -1,190 +1,137 @@
-import React, { useEffect, useState } from 'react';
-import { Button, Row, Col, Input, Table, Modal } from 'antd';
-import { DeleteOutlined } from "@ant-design/icons"
-import { useNavigate } from 'react-router-dom';
-import "./index.css"
-import axiosToken from '../../context/axiosToken';
+import React, { useEffect, useState } from "react";
+import { Table, Button, Space, message, Popconfirm } from "antd";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
-const { confirm } = Modal;
-
-function AdminAccounts() {
-  const API = process.env.REACT_APP_API_URL_ADMIN;
-  const [accounts, setAccounts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [selectionType, setSelectionType] = useState('checkbox');
-  const navigate = useNavigate();
+const AdminIndex = () => {
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const fetchAccounts = async () => {
-      try {
-        const res = await axiosToken.get(`${API}/accounts`);
-        console.log(res)
-        if (res.data.accounts != []) {
-          setAccounts(res.data.accounts);
-          console.log(accounts)
-        }
-      } catch (error) {
-        setError(error.message);
-      } finally {
-        setLoading(false);
+    fetchAdmins();
+  }, []);
+
+  const fetchAdmins = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL_ADMIN}/get-all`
+      );
+      if (response.data.code === 200) {
+        setData(response.data.data);
+        message.success("Lấy danh sách Admin thành công!");
+      } else {
+        message.error("Không thể tải danh sách Admin.");
       }
-    };
-
-    fetchAccounts();
-  }, [API]);
-
-  const handlePositionChange = (item) => {
-
-  }
-
-  const handleAddAccount = () => {
-    navigate(`/admin/accounts/create`)
-  }
-
-  const handleDetail = (record) => {
-    console.log('View details:', record);
-    navigate(`/admin/accounts`);
+    } catch (error) {
+      message.error("Lỗi khi tải danh sách Admin.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleEdit = (record) => {
-    console.log('Edit product:', record);
-    navigate(`/admin/accounts`);
+  const navigate = useNavigate();
+
+  const handleView = (id) => {
+    navigate(`/admin/manage/${id}`);
   };
 
-  const handleDelete = (record) => {
-    console.log('Delete account:', record);
+  const handleCreate = () => {
+    navigate("/admin/manage/create");
+  };
 
-    const fetchAccounts = async () => {
-      setLoading(true); // Start loading when initiating the delete request
-      try {
-        const res = await axiosToken.patch(`${API}/accounts/delete/${record._id}`)
+  const handleEdit = (id) => {
+    navigate(`/admin/manage/edit/${id}`);
+  };
 
-        setAccounts((prevAccounts) =>
-          prevAccounts.filter((account) => account._id !== record._id)
-        ); // Update the product list after successful deletion
-
-      } catch (error) {
-        setError(error.message); // Set error if something goes wrong
-        console.error("Delete error:", error);
-      } finally {
-        setLoading(false); // End loading after the delete operation
+  const handleDelete = async (id) => {
+    try {
+      const API = `${process.env.REACT_APP_API_URL_ADMIN}/delete/${id}`;
+      const response = await axios.delete(API);
+      if (response.data.code === 200) {
+        message.success("Xóa Admin thành công.");
+        setData((prev) => prev.filter((admin) => admin.id !== id));
+      } else {
+        message.error("Không thể xóa Admin.");
       }
-    };
-
-    fetchAccounts(); // Call the function to initiate the delete request
-  };
-
-  const showDeleteConfirm = (record) => {
-    confirm({
-      title: 'Bạn có chắc chắn muốn xóa sản phẩm này?',
-      okText: 'Xác nhận',
-      cancelText: 'Hủy',
-      okButtonProps: {
-        style: {
-          background: 'linear-gradient(135deg, #6253e1, #04befe)',
-          color: '#fff',               // Màu chữ trắng
-        },
-      },
-      onOk() {
-        handleDelete(record);
-      },
-      onCancel() {
-        console.log('Hủy thao tác xóa');
-      },
-    });
-  };
-
-  const handleBin = () => {
-    navigate("/admin/accounts/bin")
-  }
-
-  const rowSelection = {
-    onChange: (selectedRowKeys, selectedRows) => {
-      console.log(`Selected Row Keys: ${selectedRowKeys}`, 'Selected Rows: ', selectedRows);
-    },
+    } catch (error) {
+      message.error("Lỗi khi xóa Admin.");
+    }
   };
 
   const columns = [
     {
-      title: 'Avatar',
-      dataIndex: 'avatar',
-      key: 'avatar',
-      render: (avatar) => (
-        <img className="avt" src={avatar} />
-      ),
+      title: "STT",
+      key: "index",
+      render: (_, __, index) => index + 1,
     },
     {
-      title: 'Họ tên',
-      dataIndex: 'fullName',
-      key: 'fullName',
-      render: (fullName) => (<span>{fullName}</span>),
+      title: "Ảnh",
+      dataIndex: "thumbnail",
+      key: "thumbnail",
+      render: (thumbnail) => (
+        <img
+          src={thumbnail}
+          alt="thumbnail"
+          style={{ width: "100px", height: "auto", borderRadius: "8px" }}
+        />
+      )
+    },    
+    {
+      title: "Tên người dùng",
+      dataIndex: "username",
+      key: "username",
     },
     {
-      title: 'Phân quyền',
-      dataIndex: 'role.title',
-      key: 'role.title',
-      render: (text, record) => (<span>{(record.role.title != null) ? record.role.title : ""}</span>),
+      title: "Họ và tên",
+      dataIndex: "full_name",
+      key: "full_name",
     },
     {
-      title: 'Email',
-      dataIndex: 'email',
-      key: 'pemailosition',
-      render: (email) => (
-        <span>{email}</span>
-      ),
-    }, {
-      title: 'Trạng thái',
-      dataIndex: 'status',
-      key: 'status',
-      render: (status) => (
-        <Button className='btn-warn' type='primary'>{status === "active" ? "Hoạt động" : "Dừng hoạt động"}</Button>
-      ),
-    }, {
-      title: 'Hành động',
-      dataIndex: 'action',
-      key: 'action',
-      render: (text, record) => (
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-          <Button className='' type="primary" onClick={() => handleDetail(record)} style={{ background: 'linear-gradient(135deg, #6253e1, #04befe)' }}><b>Chi tiết</b></Button>
-          <Button className='btn-warn' type="primary" onClick={() => handleEdit(record)}><b>Sửa</b></Button>
-          <Button type="primary" danger onClick={() => showDeleteConfirm(record)}><b>Xóa</b></Button>
-        </div>
+      title: "Hành động",
+      key: "action",
+      render: (_, record) => (
+        <Space size="middle">
+          <Button type="link" onClick={() => handleView(record.id)}>
+            Xem
+          </Button>
+          <Button type="link" onClick={() => handleEdit(record.id)}>
+            Sửa
+          </Button>
+          <Popconfirm
+            title="Bạn có chắc chắn muốn xóa Admin này?"
+            onConfirm={() => handleDelete(record.id)}
+            okText="Có"
+            cancelText="Không"
+          >
+            <Button type="link" danger>
+              Xóa
+            </Button>
+          </Popconfirm>
+        </Space>
       ),
     },
   ];
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
-
   return (
-    <div>
-      {accounts ? (
-        <div className='product'>
-          <div>
-            <h1>Danh sách sản phẩm</h1>
-          </div>
-          <Row>
-            <Button type="primary" onClick={() => handleAddAccount()}>Thêm tài khoản</Button>
-            <Col span={14}>
-            </Col>
-            <span className='bin' onClick={handleBin}><DeleteOutlined className='custom-icon-bin ' /><span className='text-bin'><b>Thùng rác</b></span></span>
-          </Row>
-          <div className="mt-2">
-            <Table
-              rowSelection={{
-                type: selectionType,
-                ...rowSelection,
-              }}
-              columns={columns}
-              dataSource={accounts.map((item) => ({ ...item, key: item.id }))}
-            />
-          </div>
-        </div>)
-        : <div>Không có tài khoản nào để hiển thị</div>
-      }
-    </div >
+    <>
+      <Button
+        type="primary"
+        style={{ marginBottom: 16 }}
+        onClick={handleCreate}
+      >
+        Thêm Admin mới
+      </Button>
+      <Table
+        columns={columns}
+        dataSource={data}
+        rowKey="id"
+        loading={loading}
+        bordered
+        pagination={{ pageSize: 5 }}
+      />
+    </>
   );
-}
+};
 
-export default AdminAccounts;
+export default AdminIndex;

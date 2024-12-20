@@ -19,6 +19,7 @@ const Technician = () => {
       );
       if (response.data.code === 200) {
         setData(response.data.data);
+        console.log("data: ", data)
       } else {
         message.error("Không thể tải danh sách kỹ thuật viên");
       }
@@ -64,6 +65,18 @@ const Technician = () => {
       key: "index",
       render: (_, __, index) => index + 1,
     },
+    {
+      title: "Ảnh",
+      dataIndex: "thumbnail",
+      key: "thumbnail",
+      render: (thumbnail) => (
+        <img
+          src={thumbnail}
+          alt="thumbnail"
+          style={{ width: "100px", height: "auto", borderRadius: "8px" }}
+        />
+      )
+    },    
     {
       title: "Họ và tên",
       dataIndex: "full_name",

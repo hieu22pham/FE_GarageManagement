@@ -1,123 +1,82 @@
 import React, { useState } from 'react';
-import { Input, Button, Form } from 'antd';
-import axiosToken from '../../context/axiosToken';
+import { Input, Button, Form, message } from 'antd';
+import axios from 'axios';
 
 const API = process.env.REACT_APP_API_URL_ADMIN;
 
-const AdminCreateAccount = () => {
+const AdminCreate = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    folder: 'Sale-bear-images/admin/avatar',
-    avatar: null
+    folder: 'Sale-bear-images/admin/products',
+    thumbnail: null
   });
 
-  const onFinish = (values) => {
+  const onFinish = async (values) => {
     setLoading(true);
 
-    // Creating FormData object to handle file and text data
-    values.avatar = formData.avatar;
-    values.folder = formData.folder;
-
-    axiosToken.post(`${API}/accounts/create`, values, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
+    try {
+      values.thumbnail = formData.thumbnail;
+      console.log(values)
+      values.folder = formData.folder;
+      const response = await axios.post(`${API}/create`, values, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        }
+      }) // axios tự động stringify body
+      if (response.data.code === 201) {
+        message.success("Tạo Admin thành công!");
+        form.resetFields();
+      } else {
+        message.error(response.data.message);
       }
-    })
-      .then((response) => {
-        console.log('Success:', response.data); // Dữ liệu trả về từ server
-        setLoading(false);
-        form.resetFields(); // Reset form after success
-      })
-      .catch((error) => {
-        console.error('Error:', error);
-        setLoading(false); // Stop loading on error
-      });
+    } catch (error) {
+      console.error("Error:", error);
+      message.error("Đã xảy ra lỗi khi tạo Admin!");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleFileChange = (e) => {
-    setFormData({ ...formData, avatar: e.target.files[0] }); // Set file in formData
+    setFormData({ ...formData, thumbnail: e.target.files[0] }); // Set file in formData
   };
 
   return (
     <div style={{ padding: '20px' }}>
-      <h2>Tạo tài khoản mới</h2>
-      <Form
-        form={form}
-        layout="vertical"
-        onFinish={onFinish}
-        initialValues={{
-          status: 'active',
-          featured: 'Màu xám',
-          position: 1
-        }}
-      >
+      <h2>Tạo Admin mới</h2>
+      <Form layout="vertical" form={form} onFinish={onFinish}>
         <Form.Item
-          label="Họ tên người dùng"
-          name="fullName"
-          rules={[{ required: true, message: 'Vui lòng nhập họ tên!' }]}
+          label="Tên đăng nhập"
+          name="username"
+          rules={[{ required: true, message: 'Vui lòng nhập tên đăng nhập!' }]}
         >
-          <Input placeholder="Nhập họ tên" />
+          <Input placeholder="Nhập tên đăng nhập" />
         </Form.Item>
-
         <Form.Item
-          label="Email"
-          name="email"
-          rules={[{ required: true, message: 'Vui lòng nhập email!' }]}
-        >
-          <Input placeholder="Nhập email" />
-        </Form.Item>
-
-        <Form.Item
-          label="Password"
+          label="Mật khẩu"
           name="password"
-          rules={[{ required: true, message: 'Vui lòng nhập password!' }]}
+          rules={[{ required: true, message: 'Vui lòng nhập mật khẩu!' }]}
         >
-          <Input type="password" placeholder="Nhập password" />
+          <Input.Password placeholder="Nhập mật khẩu" />
         </Form.Item>
-
         <Form.Item
-          label="Xác nhận password"
-          name="passwordConfirm"
-          rules={[{ required: true, message: 'Vui lòng nhập password!' }]}
+          label="Họ và tên"
+          name="full_name"
+          rules={[{ required: true, message: 'Vui lòng nhập họ và tên!' }]}
         >
-          <Input type="password" placeholder="Nhập xác nhận password" />
+          <Input placeholder="Nhập họ và tên" />
         </Form.Item>
-
-        <Form.Item
-          label="Số điện thoại"
-          name="phone"
-          rules={[{ required: true, message: 'Vui lòng nhập số điện thoại!' }]}
-        >
-          <Input type="number" placeholder="Nhập số điện thoại" />
-        </Form.Item>
-
         <Form.Item
           label="Avatar"
-          name="avatar"
+          name="thumbnail"
           rules={[{ required: true, message: 'Vui lòng chọn file!' }]}
         >
-          <input type="file" name="avatar" onChange={handleFileChange} required />
+          <input type="file" name="thumbnail" onChange={handleFileChange} required />
         </Form.Item>
-
-        <Form.Item
-          label="Quyền"
-          name="role_id"
-          rules={[{ required: true, message: 'Vui lòng nhập họ tên!' }]}
-        >
-          <Input placeholder="Nhập quyền" />
-        </Form.Item>
-
-        <Form.Item
-          label="Trạng thái"
-          name="status"
-        >
-          <Input placeholder="Trạng thái sản phẩm" />
-        </Form.Item>
-
         <Form.Item>
           <Button type="primary" htmlType="submit" loading={loading}>
-            Tạo tài khoản
+            Tạo Admin
           </Button>
         </Form.Item>
       </Form>
@@ -125,4 +84,4 @@ const AdminCreateAccount = () => {
   );
 };
 
-export default AdminCreateAccount;
+export default AdminCreate;

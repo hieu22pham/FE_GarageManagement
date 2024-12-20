@@ -87,7 +87,7 @@ const LoginAdmin = () => {
         // Xử lý tiếp theo sau khi đăng nhập thành công
         // Ví dụ: Chuyển hướng sang trang admin
         if (storedToken != undefined) {
-          navigate('/admin/dashboard');;
+          navigate('/admin');;
         }
       } else {
         // Xử lý khi đăng nhập không thành công

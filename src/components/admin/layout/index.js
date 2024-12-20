@@ -84,8 +84,8 @@ export default function SidebarClient() {
         </div>
 
         <Menu theme="dark" mode="inline" defaultSelectedKeys={["1"]}>
-          <Menu.Item key="1" onClick={() => navigate("/admin/dashboard")}>
-            Dashboard
+          <Menu.Item key="1" onClick={() => navigate("/admin/manage")}>
+            Admin
           </Menu.Item>
           <Menu.Item key="2" onClick={() => navigate("/admin/technicians")}>
             Kỹ thuật viên
